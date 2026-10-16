@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  yaml-lint:
+    name: lint yaml (specs & platform)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install yamllint
+        run: pip install yamllint
+      - name: lint
+        run: yamllint -s specs/ platform/ .github/workflows/
+
+  # Phase 2 adds: build (BuildKit), scan (Trivy), SBOM (Syft), sign (Cosign)
+  # Phase 4 adds: eval harness job (runs the golden dataset smoke suite)

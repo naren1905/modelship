@@ -1,0 +1,31 @@
+apiVersion: modelship.io/v1alpha1
+kind: ModelDeployment
+metadata:
+  name: llama-3-2-3b-instruct
+  labels:
+    app.kubernetes.io/name: modelship
+    app.kubernetes.io/component: inference
+spec:
+  model:
+    source: huggingface:meta-llama/Llama-3.2-3B-Instruct
+    revision: 0000000000000000000000000000000000000000  # TODO: pin real commit SHA
+  serving:
+    backend: llama.cpp          # Metal path for local dev on Apple Silicon
+    quantization: gguf-q4
+    contextLength: 8192
+  resources:
+    accelerator: metal
+    replicas: 1
+    perReplica:
+      memory: 8Gi
+  rollout:
+    strategy: canary
+    canaryPercent: 10
+    evalSuite: evals/suites/llama-3-2-3b.yaml
+    promotionThreshold: 0.95
+  supplyChain:
+    requireSigned: true
+    maxTrivySeverity: HIGH
+  observability:
+    tracing: true
+    scrape: true
